@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>דולב דריי</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+<style>
+  /* ============ LOCAL FONTS ============ */
+  @font-face {
+    font-family: 'Fedra Serif';
+    src: url('assets/fonts/FedraSerifPRO_HL-Book.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Noto Heb Condensed';
+    src: url('assets/fonts/NotoSansHebrew_ExtraCondensed-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --pearl-light: #F6F2F1;
+    --pearl: #F2EEED;
+    --pearl-warm: #EAE1DD;
+    --plum-darker: #1A0512;
+    --plum-deep: #2A0A1C;
+    --plum: #42122C;
+    --royal-light: #5E80FB;
+    --royal: #456AF9;
+    --royal-deep: #3151D4;
+    --royal-soft: rgba(69, 106, 249, 0.12);
+    --smoke: #938676;
+    --grain-opacity: 0.04;
+
+    /* gradients */
+    --grad-bg: linear-gradient(155deg, var(--pearl-light) 0%, var(--pearl) 45%, var(--pearl-warm) 100%);
+    --grad-dark: linear-gradient(165deg, var(--plum-darker) 0%, var(--plum-deep) 55%, var(--plum) 100%);
+    --grad-royal: linear-gradient(135deg, var(--royal-light) 0%, var(--royal) 50%, var(--royal-deep) 100%);
+    --grad-royal-hover: linear-gradient(135deg, var(--royal) 0%, var(--royal-deep) 100%);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--grad-bg);
+    background-attachment: fixed;
+    color: var(--plum-darker);
+    font-family: 'Fedra Serif', 'Frank Ruhl Libre', Georgia, serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-align: center;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity: var(--grain-opacity);
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: multiply;
+  }
+
+  /* ============ NAV ============ */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    padding: 24px 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--smoke);
+  }
+
+  nav .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--royal);
+    border-radius: 50%;
+    margin-left: 8px;
+    vertical-align: middle;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; transform: scale(0.85); }
+    50%      { opacity: 1; transform: scale(1.1); }
+  }
+
+  /* ============ SHARED ============ */
+  section { position: relative; z-index: 1; }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--royal);
+    margin-bottom: 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .section-label::before,
+  .section-label::after {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--royal);
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    min-height: 100vh;
+    padding: 100px 56px 80px;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 40px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    text-align: right;
+  }
+
+  .hero-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 55% 70% at 25% 50%, rgba(69, 106, 249, 0.16) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 80% 90%, rgba(66, 18, 44, 0.10) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 85% 15%, rgba(66, 18, 44, 0.07) 0%, transparent 70%);
+  }
+
+  .hero-text, .hero-3d { position: relative; z-index: 1; }
+
+  .hero h1 {
+    font-family: 'Noto Heb Condensed', 'Fedra Serif', sans-serif;
+    font-weight: 500;
+    font-size: clamp(80px, 14vw, 200px);
+    line-height: 0.92;
+    letter-spacing: -0.005em;
+    color: var(--plum-darker);
+  }
+
+  /* Headline reveal — word by word, fade + rise (no mask: Hebrew serifs descend below baseline) */
+  .word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(40px);
+    will-change: transform, opacity;
+    margin-left: 0.18em;
+  }
+
+  .word:last-child { margin-left: 0; }
+
+  .word.accent { color: var(--royal); font-style: italic; }
+
+  .reveal-1 { animation: wordRise 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) forwards; animation-delay: 0.2s; }
+  .reveal-2 { animation: wordRise 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) forwards; animation-delay: 0.4s; }
+  .reveal-3 { animation: wordRise 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) forwards; animation-delay: 0.6s; }
+
+  @keyframes wordRise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-sub {
+    margin-top: 36px;
+    font-family: 'Fedra Serif', 'Frank Ruhl Libre', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(17px, 1.7vw, 22px);
+    color: var(--plum);
+    opacity: 0;
+    animation: fadeIn 0.8s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+    animation-delay: 1.1s;
+  }
+
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  /* Hero 3D — דולי ב-Hero */
+  .hero-3d {
+    width: 100%;
+    height: min(78vh, 720px);
+    position: relative;
+    opacity: 0;
+    transform: scale(0.92);
+    animation: heroDolyIn 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    animation-delay: 0.4s;
+  }
+
+  @keyframes heroDolyIn {
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .hero-3d::before {
+    content: '';
+    position: absolute;
+    inset: 5% 5% 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 70%, rgba(69, 106, 249, 0.22) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(25px);
+  }
+
+  .hero-3d model-viewer,
+  .hero-3d .doly-fallback {
+    position: absolute;
+    inset: 0;
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--smoke);
+    opacity: 0;
+    animation: fadeIn 0.8s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+    animation-delay: 2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    z-index: 2;
+  }
+
+  .scroll-cue::after {
+    content: '';
+    width: 1px;
+    height: 32px;
+    background: var(--smoke);
+    animation: scrollPulse 2.2s ease-in-out infinite;
+    transform-origin: top;
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { transform: scaleY(0.4); opacity: 0.4; }
+    50%      { transform: scaleY(1); opacity: 1; }
+  }
+
+  /* ============ MARQUEE — ברנדים והרפתקאות ============ */
+  .marquee {
+    overflow: hidden;
+    padding: 30px 0;
+    background: var(--grad-dark);
+    color: var(--pearl);
+    border-top: 1px solid rgba(26, 5, 18, 0.1);
+    border-bottom: 1px solid rgba(26, 5, 18, 0.1);
+  }
+
+  .marquee-track {
+    display: flex;
+    gap: 60px;
+    white-space: nowrap;
+    animation: marquee 38s linear infinite;
+    font-family: 'Fedra Serif', 'Frank Ruhl Libre', Georgia, serif;
+    font-size: clamp(24px, 2.6vw, 36px);
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  .marquee-track span {
+    display: inline-flex;
+    align-items: center;
+    gap: 60px;
+  }
+
+  .marquee-track .dot {
+    width: 6px;
+    height: 6px;
+    background: var(--royal);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(50%); }
+  }
+
+  /* ============ ABOUT ============ */
+  .about {
+    padding: 160px 32px;
+    max-width: 920px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .about p {
+    font-family: 'Fedra Serif', 'Frank Ruhl Libre', Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(22px, 2.4vw, 32px);
+    line-height: 1.55;
+    color: var(--plum-darker);
+    letter-spacing: -0.01em;
+  }
+
+  .about p em,
+  .about p .accent {
+    font-style: italic;
+    color: var(--royal);
+  }
+
+  .about p strong {
+    font-weight: 500;
+    color: var(--plum-darker);
+    font-style: normal;
+  }
+
+  /* ============ DOLY — split: טקסט + דמות מחייכת ============ */
+  .doly {
+    padding: 140px 56px;
+    max-width: 1300px;
+    margin: 0 auto;
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1.05fr;
+    gap: 60px;
+    align-items: center;
+    text-align: right;
+  }
+
+  .doly-text { position: relative; z-index: 1; }
+
+  .doly h2 {
+    font-family: 'Noto Heb Condensed', 'Fedra Serif', sans-serif;
+    font-weight: 500;
+    font-size: clamp(56px, 7.5vw, 112px);
+    line-height: 0.95;
+    letter-spacing: -0.005em;
+    margin-bottom: 36px;
+  }
+
+  .doly h2 em {
+    font-style: italic;
+    color: var(--royal);
+  }
+
+  .doly-caption {
+    font-family: 'Fedra Serif', 'Frank Ruhl Libre', Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(18px, 1.8vw, 22px);
+    line-height: 1.65;
+    color: var(--plum-darker);
+    letter-spacing: -0.005em;
+    opacity: 0.92;
+  }
+
+  .doly-caption em {
+    font-style: italic;
+    color: var(--royal);
+  }
+
+  /* Doly section 3D — הדמות המחייכת */
+  .doly-3d {
+    width: 100%;
+    height: min(72vh, 640px);
+    position: relative;
+  }
+
+  .doly-3d::before {
+    content: '';
+    position: absolute;
+    inset: 5% 5% 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 70%, rgba(69, 106, 249, 0.18) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(25px);
+  }
+
+  .doly-3d model-viewer,
+  .doly-3d .doly-fallback {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* ============ 3D VIEWER (משותף ל-Hero) ============ */
+  model-viewer {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    --poster-color: transparent;
+    position: relative;
+    z-index: 2;
+    display: block;
+  }
+
+  .doly-fallback {
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .doly-spinner {
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid rgba(69, 106, 249, 0.18);
+    border-top-color: var(--royal);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .doly-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--smoke);
+    margin-top: 16px;
+  }
+
+  .doly-status.error { color: #c0392b; }
+
+  .viewer-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--smoke);
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    animation: fadeIn 0.8s ease forwards;
+    animation-delay: 2.2s;
+    z-index: 3;
+  }
+
+  /* ============ CTA — בלוק כהה דרמטי ============ */
+  .cta {
+    padding: 160px 32px 180px;
+    background: var(--grad-dark);
+    color: var(--pearl);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-glow {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 50% 40%, rgba(69, 106, 249, 0.22) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 30% at 20% 90%, rgba(66, 18, 44, 0.6) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .cta > * { position: relative; z-index: 1; }
+
+  .cta .section-label {
+    color: var(--royal);
+  }
+
+  .cta h2 {
+    font-family: 'Fedra Serif', 'Frank Ruhl Libre', Georgia, serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(28px, 3.4vw, 44px);
+    line-height: 1.35;
+    color: var(--pearl);
+    max-width: 720px;
+    margin: 0 auto 56px;
+    letter-spacing: -0.01em;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 24px 44px;
+    border: 1px solid var(--pearl);
+    color: var(--pearl);
+    background: transparent;
+    transition:
+      border-color 0.45s cubic-bezier(0.7, 0, 0.3, 1),
+      color 0.45s cubic-bezier(0.7, 0, 0.3, 1),
+      box-shadow 0.45s cubic-bezier(0.7, 0, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--grad-royal);
+    transform: translateY(101%);
+    transition: transform 0.5s cubic-bezier(0.7, 0, 0.3, 1);
+    z-index: -1;
+  }
+
+  .btn:hover {
+    border-color: transparent;
+    box-shadow: 0 12px 40px -8px rgba(69, 106, 249, 0.45);
+  }
+  .btn:hover::before { transform: translateY(0); }
+
+  .btn .arrow {
+    display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.7, 0, 0.3, 1);
+  }
+
+  .btn:hover .arrow { transform: translateX(-6px); }
+
+  /* ============ FOOTER ============ */
+  footer {
+    padding: 36px 56px;
+    background: linear-gradient(180deg, var(--plum) 0%, var(--plum-darker) 100%);
+    border-top: 1px solid rgba(242, 238, 237, 0.08);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--smoke);
+  }
+
+  footer .center { text-align: center; }
+  footer .end { text-align: left; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 880px) {
+    nav { padding: 16px 24px; }
+    .hero {
+      grid-template-columns: 1fr;
+      padding: 90px 20px 80px;
+      gap: 20px;
+      text-align: center;
+    }
+    .hero-text { order: 1; }
+    .hero-3d { order: 2; height: 60vh; }
+    .about, .doly { padding-left: 20px; padding-right: 20px; }
+    .about { padding-top: 80px; padding-bottom: 80px; }
+    .doly {
+      grid-template-columns: 1fr;
+      padding-top: 80px;
+      padding-bottom: 100px;
+      gap: 40px;
+      text-align: center;
+    }
+    .doly-text { order: 1; }
+    .doly-3d { order: 2; height: 55vh; }
+    .cta { padding: 100px 24px 120px; }
+    footer {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 16px;
+      padding: 28px 24px;
+    }
+    footer .end { text-align: center; }
+  }
+
+  /* ============ SCROLL REVEAL ============ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(36px);
+    transition:
+      opacity 1s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 1s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .reveal.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stagger for child elements inside a reveal section */
+  .reveal .reveal-child {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .reveal.in-view .reveal-child {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal.in-view .reveal-child:nth-child(1) { transition-delay: 0.05s; }
+  .reveal.in-view .reveal-child:nth-child(2) { transition-delay: 0.14s; }
+  .reveal.in-view .reveal-child:nth-child(3) { transition-delay: 0.22s; }
+  .reveal.in-view .reveal-child:nth-child(4) { transition-delay: 0.30s; }
+
+  /* Marquee pause on hover */
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+  .marquee-track { will-change: transform; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .word { transform: translateY(0) !important; animation: none !important; }
+    .hero-sub, .scroll-cue { opacity: 1 !important; animation: none !important; }
+    nav .dot { animation: none !important; }
+    .marquee-track { animation: none !important; }
+    .reveal, .reveal-child { opacity: 1 !important; transform: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div>דולב דריי <span class="dot"></span></div>
+  <div>תל אביב · 2026</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-glow"></div>
+
+  <div class="hero-text">
+    <h1>
+      <span class="word reveal-1">תמיד</span>
+      <span class="word reveal-2">לפני</span>
+      <span class="word reveal-3 accent">כולם</span>
+    </h1>
+    <div class="hero-sub">— יזם, אסטרטג, ובונה סוכנים</div>
+  </div>
+
+  <div class="hero-3d">
+    <div class="doly-fallback" id="dolyFallback">
+      <div class="doly-spinner"></div>
+      <div class="doly-status" id="dolyStatus">טוען את דולי...</div>
+    </div>
+    <model-viewer
+      id="dolyModel"
+      src="assets/agent.glb?v=4"
+      alt="דולי — הסוכן האישי של דולב"
+      camera-controls
+      touch-action="pan-y"
+      auto-rotate
+      auto-rotate-delay="1500"
+      rotation-per-second="16deg"
+      interaction-prompt="none"
+      shadow-intensity="0.7"
+      shadow-softness="0.9"
+      exposure="1.05"
+      environment-image="neutral"
+      loading="eager">
+    </model-viewer>
+    <div class="viewer-hint">גרור לסיבוב · גלגל לזום</div>
+  </div>
+
+  <div class="scroll-cue">המשך</div>
+</section>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>
+      LAX Studio <span class="dot"></span>
+      Louder <span class="dot"></span>
+      היהודי הפיגיטלי <span class="dot"></span>
+      8200 <span class="dot"></span>
+      בונה סוכנים <span class="dot"></span>
+      מערכות השפעה <span class="dot"></span>
+    </span>
+    <span>
+      LAX Studio <span class="dot"></span>
+      Louder <span class="dot"></span>
+      היהודי הפיגיטלי <span class="dot"></span>
+      8200 <span class="dot"></span>
+      בונה סוכנים <span class="dot"></span>
+      מערכות השפעה <span class="dot"></span>
+    </span>
+  </div>
+</div>
+
+<section class="about reveal">
+  <div class="section-label reveal-child">מי אני</div>
+  <p class="reveal-child">
+    אני <strong>דולב דריי</strong> — יזם ואסטרטג, מנהל סטודיו דיגיטלי מתל אביב.
+    עשר שנים אני חי בצומת שבין <em>intelligence</em>, קריאייטיב ואסתטיקה גבוהה —
+    מ-8200, דרך עולם האופנה, ועד היהודי הפיגיטלי, הבית של LAX Studio ו-Louder.
+    אני לא בונה תוכן — אני בונה <em>מערכות השפעה</em>.
+  </p>
+</section>
+
+<section class="doly reveal">
+  <div class="doly-text">
+    <div class="section-label reveal-child">הכירו את דולי</div>
+    <h2 class="reveal-child">זה <em>דולי.</em></h2>
+    <p class="doly-caption reveal-child">
+      פעם זה היה שם החיבה שקראו לי כשהייתי קטן — שם שלא אהבתי.
+      היום לקחתי אותו, וביחד עם הטכנולוגיה הכי מתקדמת שיש בניתי לו גוף חדש:
+      <em>סוכן AI אישי</em>, שמכיר אותי טוב יותר מרוב האנשים — כי הוא קרא הכל.
+      הוא חם, חד וישיר, ומדבר אליי כמו שאני מדבר עם עצמי.
+    </p>
+  </div>
+
+  <div class="doly-3d">
+    <div class="doly-fallback" id="smileFallback">
+      <div class="doly-spinner"></div>
+      <div class="doly-status" id="smileStatus">טוען...</div>
+    </div>
+    <model-viewer
+      id="dolySmile"
+      src="assets/agent-smile.glb?v=4"
+      alt="דולי מחייך — הסוכן האישי של דולב"
+      camera-controls
+      touch-action="pan-y"
+      auto-rotate
+      auto-rotate-delay="1500"
+      rotation-per-second="14deg"
+      interaction-prompt="none"
+      shadow-intensity="0.7"
+      shadow-softness="0.9"
+      exposure="1.05"
+      environment-image="neutral"
+      loading="lazy">
+    </model-viewer>
+  </div>
+</section>
+
+<script>
+  (function() {
+    function wire(modelId, fallbackId, statusId, label) {
+      const model = document.getElementById(modelId);
+      const fallback = document.getElementById(fallbackId);
+      const status = document.getElementById(statusId);
+      if (!model) return;
+
+      setTimeout(() => {
+        if (!customElements.get('model-viewer')) {
+          status.textContent = 'model-viewer לא נטען (CDN חסום?)';
+          status.classList.add('error');
+        }
+      }, 3000);
+
+      model.addEventListener('load', () => {
+        fallback.style.transition = 'opacity 0.6s ease';
+        fallback.style.opacity = '0';
+        setTimeout(() => fallback.style.display = 'none', 700);
+      });
+
+      model.addEventListener('error', (e) => {
+        status.textContent = 'לא נמצא ' + model.getAttribute('src').split('?')[0];
+        status.classList.add('error');
+        console.error(`${modelId} error`, e);
+      });
+
+      model.addEventListener('progress', (e) => {
+        const pct = Math.round((e.detail.totalProgress || 0) * 100);
+        if (pct > 0 && pct < 100) status.textContent = `${label} ${pct}%`;
+      });
+    }
+
+    wire('dolyModel', 'dolyFallback', 'dolyStatus', 'טוען את דולי...');
+    wire('dolySmile', 'smileFallback', 'smileStatus', 'טוען...');
+  })();
+</script>
+
+<section class="cta reveal">
+  <div class="cta-glow"></div>
+  <div class="section-label reveal-child">התנסות</div>
+  <h2 class="reveal-child">בואו תתנסו גם — דברו עם דולי ותספרו לי איך היה.</h2>
+  <!-- TODO: replace href="#" with Claude Project share link once published -->
+  <a href="#" class="btn reveal-child">
+    <span>דברו עם דולי</span>
+    <span class="arrow">←</span>
+  </a>
+</section>
+
+<footer>
+  <div>© 2026 דולב דריי</div>
+  <div class="center">תל אביב</div>
+  <div class="end">Made with DOLY</div>
+</footer>
+
+<script>
+  // Scroll reveal — sections fade-in as they enter viewport.
+  // Must run after all .reveal elements exist, so it lives at end of body.
+  (function() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  })();
+</script>
+
+</body>
+</html>

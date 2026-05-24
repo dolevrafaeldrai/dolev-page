@@ -1,0 +1,5 @@
+.DS_Store
+assets/originals/
+assets/agent-multi-angle.png
+node_modules/
+*.log
